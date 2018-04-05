@@ -120,7 +120,7 @@ class Master(object):
         assert os.path.isfile(infile)
 
         self.infile = infile
-        self.task_name = "parallet_%d" % int(time.time())
+        self.task_name = "parallel_%d" % int(time.time())
         self.cores = cpu_count()
 
         if type(mapper) is types.FunctionType:
