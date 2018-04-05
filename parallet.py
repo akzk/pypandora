@@ -135,21 +135,12 @@ class Master(object):
         else:
             self.reducer = reducer
     
-    def logtime(self, info):
-        cur_time = time.time()
-        if hasattr(self, 'prev_time'):
-            print("%s: %.2f s" % (info, cur_time-self.prev_time))
-        self.prev_time = cur_time
-    
     def run(self):
         """
             running task by mapper & reducer, using all cpu cores
         """
-        self.logtime('start')
 
         starts_lengths = self.get_workload_for_workers()
-
-        self.logtime('workload distribution')
 
         workers = []
         for i, start_len in enumerate(starts_lengths):
@@ -166,12 +157,8 @@ class Master(object):
         # block
         self.block_until_workers_done(workers)
 
-        self.logtime('wait for all workers')
-
         # reducing
         result = self.reducing(workers, self.reducer)
-
-        self.logtime('reducer cost')
 
         # join
         for worker in workers: worker.proc.join()

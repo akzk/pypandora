@@ -6,7 +6,7 @@
 
 ## parallet
 
-**pypandora.parallet**是一个单机多核并行框架. 由于PIL的限制，CPython的多线程只能满足并发要求，无法提供多核并行的功能。在一部多核心的机器上，为了提高核心利用率、减少任务运行时间，pypandora.parallet利用多进程方式提供多核并行服务。pypandora.parallet的开发灵感源于Hadoop的MapReduce计算框架，但是对其框架进行了简化与修改，例如MapReduce中不管是Mapper还是Reducer需要花费部分算力在排序上面，而pypandora.parallet则删除了这部分；MapReduce中reduce处理函数接收的是一个形如(key, [value1, value2, ...])的参数，意为众Mapper产生的同key的value序列，而pypandora.parallet中的reduce与标准库functools.reduce的用法一致。因此，pypandora.parallet内部实现的许多概念不能与MapReduce等同。下面是统计词频的例子。
+**pypandora.parallet**是一个单机多核并行框架。由于PIL的限制，CPython的多线程只能满足并发要求，无法提供多核并行服务。在一部多核心的机器上，为了提高核心利用率、减少任务运行时间，pypandora.parallet利用多进程的方式提供多核并行服务。pypandora.parallet的开发灵感源于Hadoop的MapReduce计算框架，但是对其框架进行了简化与修改，例如MapReduce中不管是Mapper还是Reducer需要花费部分算力在排序上面，而pypandora.parallet则删除了这部分；MapReduce中reduce处理函数接收的是一个形如(key, [value1, value2, ...])的参数，意为众Mapper产生的同key的value集合，而pypandora.parallet中的reduce与标准库functools.reduce的用法一致。因此，pypandora.parallet内部实现的许多概念不能与MapReduce等同。下面是统计词频的例子。
 
 ### 用例
 
