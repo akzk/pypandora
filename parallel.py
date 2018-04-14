@@ -166,7 +166,7 @@ class Master(object):
         
         if max_cores != None:
             assert type(max_cores) == type(1)
-            assert 0 < max_cores < cpu_count()
+            assert 0 < max_cores <= cpu_count()
             self.cores = max_cores
 
         if type(mapper) is types.FunctionType:
