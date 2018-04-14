@@ -15,7 +15,7 @@
    最简单的做法就是直接定义map、reduce两个函数
 
    ```python
-   import pypandora.parallel as parallel
+   import pypandora.parallel as par
 
    def simple_mapper(line):
        words = line.split()
@@ -35,29 +35,62 @@
                a[k] = v
        return a
 
-   print(parallel.run("path/to/file", simple_mapper, simple_reducer))
+   if __name__ == "__main__":
+   	print(par.run("path/to/file", simple_mapper, simple_reducer))
    ```
 
 2. 类
 
-   上述直接定义函数的做法在某些任务上，会由于Mapper产生中间文件时的IO频繁导致运行过慢，需要引入combine减少中间结果的数据量；有时，自定义的map、reduce函数需要用到其他参数；有时，某些模块被加载入父进程后，在开启子进程时会报错，需要在子进程启动时才加载。所以，这里提供定义类来运行框架的方式
+   上述直接定义函数的做法在某些任务中，会由于Mapper产生中间文件时的IO操作导致运行过慢，需要引入combine减少中间结果的数据量；有时，自定义的map、reduce函数需要用到其他参数。所以，这里提供定义类来运行框架的方式
 
    ```python
-   class SimpleMapper(parallel.Mapper):
-       def import_modules(self):
-           pass
+   import pypandora.parallel as par
+
+   def simple_mapper(line):
+       words = line.split()
+       word_frq = {}
+       for word in words:
+           if word in word_frq:
+               word_frq[word] += 1
+           else:
+               word_frq[word] = 1
+       return word_frq
+
+   def simple_reducer(a, b):
+       for k, v in b.items():
+           if k in a:
+               a[k] += v
+           else:
+               a[k] = v
+       return a
+
+   class SimpleMapper(par.Mapper):
        def map(self, line):
            return simple_mapper(line)
        def combine(self, a, b):
            return simple_reducer(a, b)
 
-   class SimpleReducer(parallel.Reducer):
-       def import_modules(self):
-           pass
+   class SimpleReducer(par.Reducer):
        def reduce(self, a, b):
            return simple_reducer(a, b)
 
-   print(parallel.run("path/to/file", SimpleMapper(), SimpleReducer()))
+   if __name__ == "__main__":
+   	print(par.run("path/to/file", SimpleMapper(), SimpleReducer()))
+   ```
+
+3. 文件输出
+
+   如果任务目的是将各行经map函数处理后写入一个文件，可考虑使用SimpleFileReducer类，可以有效防止最终结果占用内存过多的问题，并且节省任务时间。以分词任务举例
+
+   ```python
+   import parallel as par
+   import jieba
+
+   def map(line):
+       return ' '.join(list(jieba.cut(line)))
+
+   if __name__ == "__main__":
+       par.run("path/to/infile", map, par.SimpleFileReducer("path/to/outfile"))
    ```
 
 ### 测试1
@@ -66,17 +99,18 @@
 
 > * 环境
 >
-> 系统：OS X EI Capitan，10.11.6
+>   系统：OS X EI Capitan，10.11.6
 >
-> CPU：2.2 GHz Intel Core i7，四核心八线程
+>   CPU：2.2 GHz Intel Core i7，四核心八线程
 >
-> 内存：16 GB 1600 MHz DDR3
+>   内存：16 GB 1600 MHz DDR3
 >
-> 磁盘：APPLE SSD SM0256G
+>   磁盘：APPLE SSD SM0256G
 >
-> Python版本：3.6.2
+>   Python版本：3.6.2
 >
-> 测试文件：《飘》英文版（扩充40倍，约100M）
+>   测试文件：《飘》英文版（扩充40倍，约100M）
+>
 
 ![wordcount](img/parallel_wordcount.png)
 
@@ -86,8 +120,9 @@
 
 > * 环境
 >
-> 测试文件：语料文件（约30M，一行一篇中文文章）
+>   测试文件：语料文件（约30M，一行一篇中文文章）
 >
-> 其余条件同上
+>   其余条件同上
+>
 
 ![jieba](img/parallel_jieba.png)

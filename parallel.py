@@ -14,8 +14,6 @@ class Mapper(metaclass=ABCMeta):
     """
         mapper
     """
-    def import_modules(self):
-        pass
     def create(self, x):
         """ will be used once when func combine() exists """
         return x
@@ -29,8 +27,6 @@ class Reducer(metaclass=ABCMeta):
     """
         reducer
     """
-    def import_modules(self):
-        pass
     def create(self, x):
         """ will be used once when getting the first map result """
         return x
@@ -147,8 +143,6 @@ class Worker(object):
 
             # jump to start pos
             fp.seek(self.start)
-
-            self.mapper.import_modules()
 
             if hasattr(self.mapper, 'combine'):
                 self.run_with_combine(fp, data_fp, index_fp)
@@ -275,7 +269,6 @@ class Master(object):
         """
         result = None
         isCreated = False
-        self.reducer.import_modules()
 
         # read intermediate results from files written by workers, and reduce them
         for worker in workers:
