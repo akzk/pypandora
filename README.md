@@ -1,12 +1,14 @@
 # README
 
-**pypandora**是一个为了方便数据科学工作的python工具库。目前，只开源其中一个模块。
+**pypandora**是一个为了方便数据科学工作的python工具库。目前开源**3**个模块。
 
-* parallel
+* parallel，单机多核并行计算框架
+* activation，激活函数
+* lr，线性回归/逻辑回归
 
 ## parallel
 
-**pypandora.parallel**是一个单机多核并行框架。由于PIL的限制，CPython的多线程只能满足并发要求，无法提供多核并行服务。在一部多核心的机器上，为了提高核心利用率、减少任务运行时间，pypandora.parallel利用多进程的方式提供多核并行服务。pypandora.parallel的开发灵感源于Hadoop的MapReduce计算框架，但是对其框架进行了简化与修改，例如MapReduce中不管是Mapper还是Reducer需要花费部分算力在排序上面，而pypandora.parallel则删除了这部分；MapReduce中reduce处理函数接收的是一个形如(key, [value1, value2, ...])的参数，意为众Mapper产生的同key的value集合，而pypandora.parallel中的reduce与标准库functools.reduce的用法一致。因此，pypandora.parallel内部实现的许多概念不能与MapReduce等同。下面是统计词频的例子。
+**pypandora.parallel**是一个单机多核并行计算框架。由于PIL的限制，CPython的多线程只能满足并发要求，无法提供多核并行服务。在一部多核心的机器上，为了提高核心利用率、减少任务运行时间，pypandora.parallel利用多进程的方式提供多核并行服务。pypandora.parallel的开发灵感源于Hadoop的MapReduce计算框架，但是对其框架进行了简化与修改，例如MapReduce中不管是Mapper还是Reducer需要花费部分算力在排序上面，而pypandora.parallel则删除了这部分；MapReduce中reduce处理函数接收的是一个形如(key, [value1, value2, ...])的参数，意为众Mapper产生的同key的value集合，而pypandora.parallel中的reduce与标准库functools.reduce的用法一致。因此，pypandora.parallel内部实现的许多概念不能与MapReduce等同。下面是统计词频的例子
 
 ### 用例
 
@@ -83,7 +85,7 @@
    如果任务目的是将各行经map函数处理后写入一个文件，可考虑使用SimpleFileReducer类，可以有效防止最终结果占用内存过多的问题，并且节省任务时间。以分词任务举例
 
    ```python
-   import parallel as par
+   import pypandora.parallel as par
    import jieba
 
    def map(line):
@@ -116,7 +118,7 @@
 
 ### 测试2
 
-实际场景中的任务——对语料进行中文分词，属于计算密集型任务，且行与行之间的结果相互无影响。
+实际场景中的任务——对语料进行中文分词，属于计算密集型任务，且行与行之间的结果相互无影响
 
 > * 环境
 >
@@ -126,3 +128,64 @@
 >
 
 ![jieba](img/parallel_jieba.png)
+
+## activation
+
+**pypandora.activation**是一个激活函数模块，其中包含了各种激活函数及其求导的实现
+
+### 用例
+
+1. 静态方法
+
+   调用静态方法，直接使用forward、backward
+
+   ```python
+   form pypandora.activation import Sigmoid
+
+   x = 0.5
+   y = Sigmoid.forward(x)
+   g = Sigmoid.backward(y)
+   ```
+
+2. 实例化
+
+   实例化激活函数类，调用auto_forward计算结果并作为类成员保存，随后不输入参数即可调用auto_backward执行求导过程
+
+   ```python
+   from pypandora.activation import Sigmoid
+
+   sigmoid = Sigmoid()
+   x = 0.5
+   y = Sigmoid.auto_forward(x)
+   g = Sigmoid.auto_backward()
+   ```
+
+## lr
+
+**pypandora.lr**是一个机器学习算法模块，包含了线性回归、逻辑回归的实现。
+
+### 用例
+
+1. 训练与预测
+
+   ```python
+   from pypandora.lr import LinearRegression
+   import numpy as np
+
+   xs = np.array([[i] for i in range(100)])
+   ys = np.array([10*x[0]+10+10*random.random() for x in xs])
+
+   model = lr.LinearRegression()
+   model.train(xs, ys)
+   model.predict([1])
+   ```
+
+2. 保存与加载
+
+   ```python
+   model.save("path/to/file")
+   model.load("path/to/file")
+   ```
+
+   ​
+
