@@ -1,10 +1,11 @@
 # README
 
-**pypandora**是一个为了方便数据科学工作的python工具库。目前开源**3**个模块。
+**pypandora**是一个为了方便数据科学工作的python工具库。目前开源**4**个模块。
 
-* parallel，单机多核并行计算框架
-* activation，激活函数
-* lr，线性回归/逻辑回归
+* [parallel](#parallel)，单机多核并行计算框架
+* [activation](#activation)，激活函数
+* [lr](#lr)，线性回归/逻辑回归
+* [nn](#nn)，BP神经网络
 
 ## parallel
 
@@ -43,7 +44,7 @@
 
 2. 类
 
-   上述直接定义函数的做法在某些任务中，会由于Mapper产生中间文件时的IO操作导致运行过慢，需要引入combine减少中间结果的数据量；有时，自定义的map、reduce函数需要用到其他参数。所以，这里提供定义类来运行框架的方式
+   上述直接定义函数的做法在某些任务中，会由于Mapper产生中间文件时的IO操作导致运行过慢，需要引入combine减少中间结果的数据量；有时，自定义的map、reduce函数需要用到公共变量。所以，这里提供定义类来运行框架的方式
 
    ```python
    import pypandora.parallel as par
@@ -162,7 +163,7 @@
 
 ## lr
 
-**pypandora.lr**是一个机器学习算法模块，包含了线性回归、逻辑回归的实现。
+**pypandora.lr**是一个机器学习算法模块，包含了线性回归、逻辑回归的实现
 
 ### 用例
 
@@ -187,5 +188,48 @@
    model.load("path/to/file")
    ```
 
-   ​
 
+
+## nn
+
+**pypandora.nn**是一个机器学习算法模块，包含了BP神经网络的基本实现。该模块使用Sequential mode进行模型训练，支持保存、加载模型
+
+### 用例
+
+1. 训练
+
+   以下代码建立了一个双输入单输出的BP神经网络，具有一层隐含层(含两个神经元，激活函数为Sigmoid)，实现了“与”逻辑
+
+   ```python
+   from pypandora.nn import BP
+   from activation import Sigmoid
+
+   xs = [(0, 0), (0, 1), (1, 0), (1, 1)]
+   ys = [(0), (0), (0), (1)]
+
+   nn = BP(in_num=2)
+   nn.add_layer(2, ac_func=Sigmoid)
+   nn.add_layer(1, ac_func=Sigmoid)
+   nn.train(xs, ys, learning_rate=1.7, iteration=10000, log_step=64)
+   ```
+
+2. 保存
+
+   为训练好的模型进行保存操作
+
+   ```python
+   p = nn.save("paht/to/file")
+   print("The trained model is saved in: %s" % p)
+   ```
+
+3. 加载与预测
+
+   加载存储于文件中的模型参数，并进行结果预测
+
+   ```python
+   nn = BP()
+   nn.load("path/to/file")
+   nn.predict((1, 1))
+   ```
+
+   ​
