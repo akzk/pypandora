@@ -202,7 +202,7 @@
 
    ```python
    from pypandora.nn import BP
-   from activation import Sigmoid
+   from pypandora.activation import Sigmoid
 
    xs = [(0, 0), (0, 1), (1, 0), (1, 1)]
    ys = [(0), (0), (0), (1)]
