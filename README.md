@@ -272,15 +272,15 @@
    1. 计算单一用户与其它用户的距离并保存
 
       ```python
-      cf.update_distance(user_id)						# 默认使用欧几里得距离
+      cf.update_distance(user_id)				# 默认使用欧几里得距离
       cf.update_distance(user_id, metric='pearson')	# 使用皮尔逊相关系数
       ```
 
    2. 计算所有用户彼此之间的距离并保存
 
       ```python
-      cf.update_all_distance()						# 默认使用欧几里得距离
-      cf.update_all_distance(metric='persion')		# 使用皮尔逊相关系数
+      cf.update_all_distance()			# 默认使用欧几里得距离
+      cf.update_all_distance(metric='persion')	# 使用皮尔逊相关系数
       ```
 
 4. 获取两个用户之间的距离
