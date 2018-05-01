@@ -261,7 +261,7 @@
 
       ```python
       for user_id, item_id, rating in data:
-      	cf.add_rating(user_id, item_id, rating, is_commit=True)
+      	cf.add_rating(user_id, item_id, rating, is_commit=False)
       cf.commit()
       ```
 
