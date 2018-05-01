@@ -1,11 +1,12 @@
 # README
 
-**pypandora**是一个为了方便数据科学工作的python工具库。目前开源**4**个模块。
+**pypandora**是一个为了方便数据科学工作的python工具库。目前开源**5**个模块。
 
 * [parallel](#parallel)，单机多核并行计算框架
 * [activation](#activation)，激活函数
 * [lr](#lr)，线性回归/逻辑回归
 * [nn](#nn)，BP神经网络
+* [cf](#cf)，协同过滤
 
 ## parallel
 
@@ -232,4 +233,60 @@
    nn.predict((1, 1))
    ```
 
-   ​
+
+## cf
+
+**pypandora.cf**是一个推荐系统模块，包含了协同过滤的基本实现。该模块利用sqlite存储数据，用户距离计算支持欧几里德距离、皮尔逊相关系数。
+
+### 用例
+
+1. 实例化与建立数据库
+
+   ```python
+   from pypandora.cf import CF
+   cf = CF("path/to/db")
+   ```
+
+2. 添加数据
+
+   添加单一用户对单一商品的喜爱度/评分
+
+   1. 单次添加
+
+      ```
+      cf.add_rating(user_id, item_id, rating)
+      ```
+
+   2. 多次添加
+
+      ```python
+      for user_id, item_id, rating in data:
+      	cf.add_rating(user_id, item_id, rating, is_commit=True)
+      cf.commit()
+      ```
+
+3. 计算距离并保存
+
+   以下两个函数都可以通过添加参数is_commit以确认是否提交数据库，默认自动提交
+
+   1. 计算单一用户与其它用户的距离并保存
+
+      ```python
+      cf.update_distance(user_id)						# 默认使用欧几里得距离
+      cf.update_distance(user_id, metric='pearson')	# 使用皮尔逊相关系数
+      ```
+
+   2. 计算所有用户彼此之间的距离并保存
+
+      ```python
+      cf.update_all_distance()						# 默认使用欧几里得距离
+      cf.update_all_distance(metric='persion')		# 使用皮尔逊相关系数
+      ```
+
+4. 获取两个用户之间的距离
+
+   ```python
+   distance = cf.get_distance(user_id1, user_id2)
+   print(f"The distance between user a and b is {distance}")
+   ```
+
