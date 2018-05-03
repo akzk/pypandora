@@ -74,6 +74,46 @@ class CF(object):
         distance = self.__get_distance(a_id, b_id)
         return distance
     
+    def get_closest_users(self, user, num=10):
+        """
+            Searching users closest to the user with given user_id(origin id)
+
+            user    : user origin id
+            num     : number of closest users 
+        """
+        user_id = self.__get_user_id(user)
+        if user_id is None: return []
+        return self.__get_closest_users(user_id, num)
+    
+    def __get_closest_users(self, user_id, num):
+        """
+            Searching users closest to the user with given user_id
+
+            user_id : user id
+            num     : number of closest users
+        """
+        sqls = [
+            f"""
+                select b_id, distance from distance where a_id = {user_id} 
+                and distance != -1 order by distance limit {num}
+            """,
+            f"""
+                select a_id, distance from distance where b_id = {user_id}
+                and distance != -1 order by distance limit {num}
+            """
+        ]
+
+        cursor = self.conn.cursor()
+        result = []
+
+        for sql in sqls:
+            cursor.execute(sql)
+            for row in cursor.fetchall():
+                result.append({"user_id": row[0], "distance": row[1]})
+            if len(result) > 0: break
+
+        return result
+    
     def __update(self, a_id, b_ids, metric='euclidean'):
         """
             Computing and updating distance between one user and other users

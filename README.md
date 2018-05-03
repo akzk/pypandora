@@ -290,3 +290,11 @@
    print(f"The distance between user a and b is {distance}")
    ```
 
+5. 获取最近的k个用户
+
+   ```python
+   closest = cf.get_closest_users(user_id, k)
+   ```
+
+   
+
